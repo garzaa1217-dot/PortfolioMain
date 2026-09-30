@@ -58,7 +58,10 @@
     .split .panel:first-child .row { grid-template-columns: 243px 1fr; }
     .services { display: grid; row-gap: 7px; }
     .list { display: grid; row-gap: 3px; }
+    /* Variant without GitHub: open with ?no-github */
+    .no-github .github { display: none; }
   </style>
+  <script>if (/no-github/.test(location.search)) document.documentElement.classList.add("no-github");</script>
 </head>
 <body>
   <main class="page">
@@ -72,7 +75,7 @@
         </div>
         <div>
           <div><a href="https://jonathongarza.com">Portfolio</a></div>
-          <div><a href="https://github.com/garzaa1217-dot">GitHub</a></div>
+          <div class="github"><a href="https://github.com/garzaa1217-dot">GitHub</a></div>
         </div>
       </div>
       <div class="row">

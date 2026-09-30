@@ -34,3 +34,5 @@ The site is fully static. On GitHub Pages: **Settings → Pages → Deploy from 
 The résumé is built from **`resume/index.html`** (one US Letter page) and exported to `assets/Jonathon-Garza-Resume.pdf`, which the site's "Download résumé" button serves.
 
 To update it: edit `resume/index.html`, open it in Chrome, then **Print → Save as PDF** with *Margins: None* and *Background graphics* on. Save over `assets/Jonathon-Garza-Resume.pdf`.
+
+A second version without the GitHub link lives at `assets/Jonathon-Garza-Resume-no-GitHub.pdf`. To export it, open `resume/index.html?no-github` and print the same way.
