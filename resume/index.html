@@ -38,7 +38,7 @@
     .row { display: grid; grid-template-columns: var(--cols); column-gap: 16px; }
     .head-links { display: grid; grid-template-columns: 1.3fr 1fr; }
     .head-links div + div { justify-self: end; }
-    .mark { width: 44px; height: 44px; } /* slot for the logo */
+    .mark { display: block; height: 46px; width: auto; }
     .intro {
       grid-column: 2 / 4; margin: 26px 0 26px; font-size: 13.5pt; line-height: 1.3;
       letter-spacing: -0.01em; max-width: 33em;
@@ -66,7 +66,7 @@
     <section class="top">
       <div class="row">
         <!-- Mark: a dot grid echoing the binary motif -->
-        <div class="mark" aria-hidden="true"></div>
+        <img class="mark" src="../assets/logo.svg" alt="Jonathon Garza logo" />
         <div>
           <div class="muted">garzaa1217@gmail.com</div>
           <div class="muted">210-907-5833</div>
