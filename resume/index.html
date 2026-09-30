@@ -26,6 +26,7 @@
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .page {
+      position: relative;
       width: 8.5in; height: 11in; margin: 24px auto; background: var(--paper);
       padding: 8px; display: flex; flex-direction: column; gap: 6px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); overflow: hidden;
@@ -70,13 +71,21 @@
       --duty: #b8b8b8;
     }
     .dark .mark { filter: invert(1); }
+
+    /* Accent variant (?accent): gradient name + dithered color field in the top-left corner */
+    .accent-field { display: none; position: absolute; left: 0; top: 0; pointer-events: none; }
+    .accent .accent-field { display: block; }
+    .top { position: relative; } /* keep header content above the field */
+    /* the name's pink→orange gradient is set per letter by the script below —
+       background-clip: text prints with a hairline box in Chromium PDFs */
   </style>
   <script>
-    for (const v of ["no-github", "dark"]) if (new URLSearchParams(location.search).has(v)) document.documentElement.classList.add(v);
+    for (const v of ["no-github", "dark", "accent"]) if (new URLSearchParams(location.search).has(v)) document.documentElement.classList.add(v);
   </script>
 </head>
 <body>
   <main class="page">
+    <svg class="accent-field" id="accent-field" width="280" height="250" aria-hidden="true"></svg>
     <section class="top">
       <div class="row">
         <!-- Logo -->
@@ -91,7 +100,7 @@
         </div>
       </div>
       <div class="row">
-        <p class="intro">Hi, I'm Jonathon — a multidisciplinary designer in Austin, TX, with 8+ years of storytelling across visual design, motion and video. AI&nbsp;coding tools are my latest escape, giving me the freedom to build almost anything. With Claude Code at the center, I orchestrate a wider toolkit to take ideas from concept to reality.</p>
+        <p class="intro">Hi, I'm <span class="name">Jonathon</span> — a multidisciplinary designer in Austin, TX, with 8+ years of storytelling across visual design, motion and video. AI&nbsp;coding tools are my latest escape, giving me the freedom to build almost anything. With Claude Code at the center, I orchestrate a wider toolkit to take ideas from concept to reality.</p>
       </div>
     </section>
 
@@ -177,5 +186,51 @@
       </section>
     </div>
   </main>
+  <script>
+    // Dithered color field: a smooth "fluid" noise picks the color, an ordered
+    // (Bayer) dither turns a fade mask into halftone pixels — like the reference.
+    (() => {
+      if (!document.documentElement.classList.contains("accent")) return;
+      const svg = document.getElementById("accent-field");
+      const W = +svg.getAttribute("width"), H = +svg.getAttribute("height");
+      const CELL = 3.4, DOT = 2.4;
+      const LOGO = { x0: 14, y0: 12, x1: 82, y1: 86 }; // keep clear around the logo
+      const bayer = [[0,32,8,40,2,34,10,42],[48,16,56,24,50,18,58,26],[12,44,4,36,14,46,6,38],[60,28,52,20,62,30,54,22],
+                     [3,35,11,43,1,33,9,41],[51,19,59,27,49,17,57,25],[15,47,7,39,13,45,5,37],[63,31,55,23,61,29,53,21]];
+      const palette = ["#f2691e", "#ec3f8c", "#ffab94"];
+      const fluid = (x, y) => 0.5 + 0.5 * Math.sin(x * 0.02 + Math.sin(y * 0.024) * 2.4 + Math.cos(x * 0.011 - y * 0.017) * 1.6);
+      const blobs = (x, y) => 0.5 + 0.5 * Math.sin(x * 0.034 + Math.cos(y * 0.041) * 1.8) * Math.cos(y * 0.029 - Math.sin(x * 0.023) * 1.5);
+      const ns = "http://www.w3.org/2000/svg";
+      const frag = document.createDocumentFragment();
+      for (let j = 0; j * CELL < H; j++) {
+        for (let i = 0; i * CELL < W; i++) {
+          const x = i * CELL, y = j * CELL;
+          // densest at the page edge low in the corner, fading toward the logo and the intro
+          const d = Math.hypot(x / W, (H - y) / H * 1.1);
+          const gap = Math.hypot(Math.max(LOGO.x0 - x, 0, x - LOGO.x1), Math.max(LOGO.y0 - y, 0, y - LOGO.y1));
+          const clear = Math.min(1, gap / 22);
+          const density = Math.max(0, 1 - d) ** 1.1 * (0.3 + 1.0 * blobs(x, y)) * clear;
+          if (density <= (bayer[j % 8][i % 8] + 0.5) / 64) continue;
+          const f = fluid(x, y);
+          const r = document.createElementNS(ns, "rect");
+          r.setAttribute("x", x); r.setAttribute("y", y);
+          r.setAttribute("width", DOT); r.setAttribute("height", DOT);
+          r.setAttribute("fill", palette[f < 0.38 ? 0 : f < 0.72 ? 1 : 2]);
+          frag.appendChild(r);
+        }
+      }
+      svg.appendChild(frag);
+
+      // Gradient name, one solid color per letter
+      const name = document.querySelector(".name");
+      const letters = [...name.textContent];
+      const from = [236, 63, 140], to = [242, 105, 30];
+      name.innerHTML = letters.map((c, k) => {
+        const t = letters.length > 1 ? k / (letters.length - 1) : 0;
+        const rgb = from.map((v, n) => Math.round(v + (to[n] - v) * t)).join(",");
+        return `<span style="color: rgb(${rgb})">${c}</span>`;
+      }).join("");
+    })();
+  </script>
 </body>
 </html>
