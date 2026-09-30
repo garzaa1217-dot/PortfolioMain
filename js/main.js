@@ -223,17 +223,18 @@
     <li class="job reveal ${i === 0 ? "open" : ""}">
       <div class="job-card glass">
         <button class="job-head" aria-expanded="${i === 0}" aria-controls="job-${i}">
-          <span><h3>${esc(j.company)}</h3><span class="role">${esc(j.role)} · ${esc(j.location)}</span></span>
+          <span><h3>${esc(j.company)}</h3><span class="role">${esc(j.role)}${j.location ? ` · ${esc(j.location)}` : ""}</span></span>
           <span class="job-period">${esc(j.period)}</span>
           <span class="chev" aria-hidden="true">+</span>
         </button>
         <div class="job-body" id="job-${i}"><div><div class="job-inner">
-          <p>${esc(j.summary)}</p>
-          <ul>${j.highlights.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>
-          <div class="tags">${j.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
+          ${j.summary ? `<p>${esc(j.summary)}</p>` : ""}
+          ${j.highlights?.length ? `<ul>${j.highlights.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>` : ""}
+          <div class="tags">${(j.tags || []).map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
         </div></div></div>
       </div>
     </li>`).join("");
+  if (P.education) timeline.insertAdjacentHTML("afterend", `<p class="education reveal"><span class="eyebrow">Education</span>${esc(P.education)}</p>`);
   timeline.addEventListener("click", (e) => {
     const head = e.target.closest(".job-head");
     if (!head) return;
@@ -251,15 +252,18 @@
   updateTimelineProgress();
 
   /* ───────── Projects with generative art ───────── */
-  $("#projects").innerHTML = P.projects.map((p, i) => `
-    <a class="project glass reveal" href="${esc(p.url)}" style="transition-delay:${i * 90}ms">
+  $("#projects").innerHTML = P.projects.map((p, i) => {
+    const tag = p.url ? "a" : "article";
+    return `
+    <${tag} class="project glass reveal${p.url ? " linked" : ""}" ${p.url ? `href="${esc(p.url)}"` : ""} style="transition-delay:${i * 90}ms">
       <div class="project-art"><canvas data-hue="${p.hue}" data-seed="${i + 1}" aria-hidden="true"></canvas><span class="year">${esc(p.year)}</span></div>
       <div class="project-body">
-        <h3><span>${esc(p.title)}</span><span class="arrow" aria-hidden="true">↗</span></h3>
+        <h3><span>${esc(p.title)}</span>${p.url ? `<span class="arrow" aria-hidden="true">↗</span>` : ""}</h3>
         <p>${esc(p.blurb)}</p>
         <div class="tags">${p.tags.map((t) => `<span class="tag">${esc(t)}</span>`).join("")}</div>
       </div>
-    </a>`).join("");
+    </${tag}>`;
+  }).join("");
 
   const paintArt = (cv) => {
     const w = (cv.width = 600), h = (cv.height = 450), c = cv.getContext("2d");
@@ -274,21 +278,24 @@
       g.addColorStop(1, `hsla(${hue + k * 28} 85% 62% / 0)`);
       c.fillStyle = g; c.fillRect(0, 0, w, h);
     }
-    // faux UI wireframe on top — a nod to the interface inside
-    c.strokeStyle = "rgba(255,255,255,0.35)"; c.fillStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1.5;
+    // motion-editor motif: a video frame, keyframe tracks and an easing curve
     const rr = (x, y, ww, hh, rad) => { c.beginPath(); c.roundRect(x, y, ww, hh, rad); c.fill(); c.stroke(); };
-    rr(90, 80, 420, 290, 18);
-    c.fillStyle = "rgba(255,255,255,0.14)";
-    rr(112, 104, 120, 14, 7);
-    for (let k = 0; k < 3; k++) rr(112, 140 + k * 34, 150 + rnd() * 110, 18, 9);
-    c.fillStyle = "rgba(255,255,255,0.1)";
-    rr(112, 250, 376, 96, 12);
+    c.strokeStyle = "rgba(255,255,255,0.35)"; c.fillStyle = "rgba(255,255,255,0.08)"; c.lineWidth = 1.5;
+    rr(90, 60, 420, 200, 16);
+    c.fillStyle = "rgba(255,255,255,0.85)"; c.beginPath();
+    c.moveTo(290, 135); c.lineTo(290, 185); c.lineTo(332, 160); c.closePath(); c.fill();
     c.strokeStyle = "rgba(255,255,255,0.8)"; c.lineWidth = 2.5; c.beginPath();
-    for (let x = 0; x <= 340; x += 20) {
-      const y = 320 - 50 * (0.3 + 0.7 * rnd()) * (x / 340 + 0.2);
-      x ? c.lineTo(130 + x, y) : c.moveTo(130 + x, y);
+    c.moveTo(110, 240); c.bezierCurveTo(200 + rnd() * 40, 240, 260 + rnd() * 60, 80, 490, 80); c.stroke();
+    c.lineWidth = 1.5;
+    for (let k = 0; k < 3; k++) {
+      const y = 290 + k * 34, start = 90 + rnd() * 120, len = 120 + rnd() * 180;
+      c.fillStyle = "rgba(255,255,255,0.06)"; c.strokeStyle = "rgba(255,255,255,0.2)"; rr(90, y, 420, 22, 11);
+      c.fillStyle = "rgba(255,255,255,0.22)"; c.strokeStyle = "rgba(255,255,255,0.4)"; rr(start, y, len, 22, 11);
+      c.fillStyle = "#fff";
+      for (const kx of [start + 11, start + len - 11]) { c.save(); c.translate(kx, y + 11); c.rotate(Math.PI / 4); c.fillRect(-4, -4, 8, 8); c.restore(); }
     }
-    c.stroke();
+    const playhead = 180 + rnd() * 240;
+    c.strokeStyle = "rgba(255,255,255,0.9)"; c.lineWidth = 2; c.beginPath(); c.moveTo(playhead, 280); c.lineTo(playhead, 396); c.stroke();
   };
   $$(".project-art canvas").forEach(paintArt);
 
@@ -369,7 +376,7 @@
   const go = (id) => () => document.getElementById(id).scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
   const commands = [
     { label: "Go to About", kind: "Section", run: go("about") },
-    { label: "Go to Stack", kind: "Section", run: go("stack") },
+    { label: "Go to Skills", kind: "Section", run: go("stack") },
     { label: "Go to Experience", kind: "Section", run: go("experience") },
     { label: "Go to Selected work", kind: "Section", run: go("work") },
     { label: "Ask me anything", kind: "Section", run: go("ask") },
