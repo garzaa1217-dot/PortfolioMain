@@ -13,6 +13,8 @@
       --ink: #161616;
       --ink-2: #6f6f6f;
       --panel: #f1f1f1;
+      --paper: #fff;
+      --duty: #454545;
       /* shared column lines: date | detail | place */
       --cols: 32% 1fr 20%;
     }
@@ -24,11 +26,11 @@
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
     }
     .page {
-      width: 8.5in; height: 11in; margin: 24px auto; background: #fff;
+      width: 8.5in; height: 11in; margin: 24px auto; background: var(--paper);
       padding: 8px; display: flex; flex-direction: column; gap: 6px;
       box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); overflow: hidden;
     }
-    @media print { html { background: #fff; } .page { margin: 0; box-shadow: none; } }
+    @media print { html { background: var(--paper); } .page { margin: 0; box-shadow: none; } }
     a { color: inherit; }
     .muted { color: var(--ink-2); }
 
@@ -50,7 +52,7 @@
     .entry .title { display: block; font-weight: 600; }
     .entry .sub { display: block; color: var(--ink-2); }
     /* duties stay inside the middle column so the three column lines hold */
-    .duties { grid-column: 2; margin: 5px 0 2px; padding: 0; list-style: none; display: grid; row-gap: 1px; color: #454545; }
+    .duties { grid-column: 2; margin: 5px 0 2px; padding: 0; list-style: none; display: grid; row-gap: 1px; color: var(--duty); }
 
     /* bottom panels snap to the same column lines as the rows above:
        row content is 760px wide → date col 243px, place col starts at 608px */
@@ -58,16 +60,26 @@
     .split .panel:first-child .row { grid-template-columns: 243px 1fr; }
     .services { display: grid; row-gap: 7px; }
     .list { display: grid; row-gap: 3px; }
-    /* Variant without GitHub: open with ?no-github */
+    /* Variants, set by query string: ?no-github hides the GitHub link, ?dark switches to dark mode */
     .no-github .github { display: none; }
+    .dark {
+      --ink: #ededed;
+      --ink-2: #8c8c8c;
+      --panel: #1b1b1b;
+      --paper: #0f0f0f;
+      --duty: #b8b8b8;
+    }
+    .dark .mark { filter: invert(1); }
   </style>
-  <script>if (/no-github/.test(location.search)) document.documentElement.classList.add("no-github");</script>
+  <script>
+    for (const v of ["no-github", "dark"]) if (new URLSearchParams(location.search).has(v)) document.documentElement.classList.add(v);
+  </script>
 </head>
 <body>
   <main class="page">
     <section class="top">
       <div class="row">
-        <!-- Mark: a dot grid echoing the binary motif -->
+        <!-- Logo -->
         <img class="mark" src="../assets/logo.svg" alt="Jonathon Garza logo" />
         <div>
           <div class="muted">garzaa1217@gmail.com</div>
