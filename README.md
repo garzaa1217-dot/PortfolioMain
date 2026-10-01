@@ -43,5 +43,6 @@ Other versions come from the same source, switched on by adding options to the a
 | `assets/Jonathon-Garza-Resume-no-GitHub-dark.pdf` | `resume/index.html?no-github&dark` |
 | `assets/Jonathon-Garza-Resume-no-GitHub-accent.pdf` | `resume/index.html?no-github&accent` |
 | `assets/Jonathon-Garza-Resume-no-GitHub-dark-accent.pdf` | `resume/index.html?no-github&dark&accent` |
+| `assets/Jonathon-Garza-Resume-no-GitHub-dark-accent-clean.pdf` | `resume/index.html?no-github&dark&accent&no-duties` |
 
-`accent` adds a pink-to-orange gradient on the name and a dithered color field in the top-left corner. Print each one the same way.
+`accent` adds a pink-to-orange gradient on the name and a dithered color field in the top-left corner. `no-duties` lists every job as company and role only. Print each one the same way.

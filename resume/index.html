@@ -61,8 +61,13 @@
     .split .panel:first-child .row { grid-template-columns: 243px 1fr; }
     .services { display: grid; row-gap: 7px; }
     .list { display: grid; row-gap: 3px; }
-    /* Variants, set by query string: ?no-github hides the GitHub link, ?dark switches to dark mode */
+    /* Variants, set by query string: ?no-github hides the GitHub link, ?dark switches to dark mode,
+       ?no-duties lists every job as company + role only */
     .no-github .github { display: none; }
+    .no-duties .duties { display: none; }
+    /* spread the space the duties free up evenly, instead of pooling it at the bottom */
+    .no-duties .entries { row-gap: 28px; }
+    .no-duties .intro { margin: 48px 0 40px; }
     .dark {
       --ink: #ededed;
       --ink-2: #8c8c8c;
@@ -80,7 +85,7 @@
        background-clip: text prints with a hairline box in Chromium PDFs */
   </style>
   <script>
-    for (const v of ["no-github", "dark", "accent"]) if (new URLSearchParams(location.search).has(v)) document.documentElement.classList.add(v);
+    for (const v of ["no-github", "dark", "accent", "no-duties"]) if (new URLSearchParams(location.search).has(v)) document.documentElement.classList.add(v);
   </script>
 </head>
 <body>
@@ -192,6 +197,9 @@
     (() => {
       if (!document.documentElement.classList.contains("accent")) return;
       const svg = document.getElementById("accent-field");
+      // fill the header down to the first panel, whatever height the variant gives it
+      const top = document.querySelector(".top");
+      svg.setAttribute("height", top.offsetTop + top.offsetHeight);
       const W = +svg.getAttribute("width"), H = +svg.getAttribute("height");
       const CELL = 3.4, DOT = 2.4;
       const LOGO = { x0: 14, y0: 12, x1: 82, y1: 86 }; // keep clear around the logo
